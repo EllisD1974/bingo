@@ -189,7 +189,7 @@ class BingoGrid(QWidget):
         self.set_mark(button, new_state)
 
         self.ws_client.send({
-            "type": "mark" if new_state else "unmark",
+            "action": "mark" if new_state else "unmark",
             "option": button.original_text
         })
 
