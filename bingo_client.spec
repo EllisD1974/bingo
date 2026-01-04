@@ -34,7 +34,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name="Bingo",
+    name="BingoClient",
     console=False,
     icon="resources/icons/icon.ico",
     debug=False,
