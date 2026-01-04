@@ -1,0 +1,40 @@
+services:
+  api:
+    build:
+      context: ./api
+    container_name: bingo_api
+    ports:
+      - "8000:8000"  # local access to FastAPI
+    environment:
+      - HOST=127.0.0.1
+      - PORT=8000
+      - DATABASE_URL=postgresql://127.0.0.1:bingo@db:5432/bingo
+#    depends_on:
+#      - db
+    restart: unless-stopped
+    volumes:
+      - ./api:/app  # optional: live code reload for dev
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: bingo_tunnel
+    command: tunnel --url http://api:8000   # dev mode, random public URL
+    depends_on:
+      - api
+    restart: unless-stopped
+
+#  db:
+#    image: postgres:16-alpine
+#    container_name: bingo_db
+#    environment:
+#      POSTGRES_USER: bingo
+#      POSTGRES_PASSWORD: bingo
+#      POSTGRES_DB: bingo
+#    ports:
+#      - "5432:5432"  # ONLY exposed locally
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+#    restart: unless-stopped
+
+volumes:
+  pgdata:

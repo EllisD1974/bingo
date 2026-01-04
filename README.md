@@ -1,2 +1,6 @@
-# bingo
-Multiplayer bingo - made for fun :D
+
+
+
+
+## Install Cloudflare Tunnel ##
+winget install Cloudflare.cloudflared
