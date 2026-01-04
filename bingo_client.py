@@ -32,62 +32,10 @@ class BingoSignals(QObject):
     update = pyqtSignal(str, str)        # action, option
 
 
-# ---------- WebSocket Client ----------
-# class BingoWSClient:
-#     def __init__(self, signals: BingoSignals):
-#         self.signals = signals
-#         self.ws = None
-#
-#     async def run(self):
-#         url = f"{SERVER_URL}/{ROOM_ID}"
-#         async with websockets.connect(url) as ws:
-#             self.ws = ws
-#             async for message in ws:
-#                 data = json.loads(message)
-#
-#                 if data["type"] == "init":
-#                     self.signals.init_card.emit(
-#                         data["card"],
-#                         data["marked"]
-#                     )
-#
-#                 elif data["type"] == "update":
-#                     self.signals.update.emit(
-#                         data["action"],
-#                         data["option"]
-#                     )
-#
-#     async def send(self, payload: dict):
-#         if self.ws:
-#             await self.ws.send(json.dumps(payload))
-# class BingoWSClient:
-#     def __init__(self, signals):
-#         self.signals = signals
-#         self.ws = None
-#         self.loop = None
-#
-#     async def run(self):
-#         self.loop = asyncio.get_running_loop()
-#         async with websockets.connect(f"{SERVER_URL}/{ROOM_ID}") as ws:
-#             self.ws = ws
-#             async for message in ws:
-#                 data = json.loads(message)
-#
-#                 if data["type"] == "init":
-#                     self.signals.init_card.emit(data["card"], data["marked"])
-#
-#                 elif data["type"] == "update":
-#                     self.signals.update.emit(data["action"], data["option"])
-#
-#     def send(self, payload):
-#         asyncio.run_coroutine_threadsafe(
-#             self.ws.send(json.dumps(payload)),
-#             self.loop
-#         )
 class BingoWSClient:
     def __init__(self, signals, server_url: str, room_id: str):
         self.signals = signals
-        self.server_url = server_url
+        self.server_url = f"{server_url.replace("https", "wss")}/ws"
         self.room_id = room_id
         self.ws = None
         self.loop = None
@@ -188,15 +136,6 @@ class BingoGrid(QWidget):
         sys.exit(0)
 
     # ---------- WebSocket thread ----------
-    # def start_ws_thread(self):
-    #     def runner():
-    #         loop = asyncio.new_event_loop()
-    #         asyncio.set_event_loop(loop)
-    #         self.ws_client = BingoWSClient(self.signals)
-    #         loop.run_until_complete(self.ws_client.run())
-    #
-    #     threading.Thread(target=runner, daemon=True).start()
-
     def start_ws_thread(self):
         def runner():
             loop = asyncio.new_event_loop()
@@ -245,19 +184,6 @@ class BingoGrid(QWidget):
         return btn
 
     # ---------- Mark handling ----------
-    # def toggle_mark(self, button):
-    #     new_state = not button.marked
-    #     self.set_mark(button, new_state)
-    #
-    #     payload = {
-    #         "type": "mark" if new_state else "unmark",
-    #         "option": button.original_text
-    #     }
-    #
-    #     asyncio.run_coroutine_threadsafe(
-    #         self.ws_client.send(payload),
-    #         asyncio.get_event_loop()
-    #     )
     def toggle_mark(self, button):
         new_state = not button.marked
         self.set_mark(button, new_state)
