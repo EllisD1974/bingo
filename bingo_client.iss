@@ -13,7 +13,6 @@ OutputBaseFilename=BingoClientInstaller
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=resources\icons\icon.ico
 
 PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
