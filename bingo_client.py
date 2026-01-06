@@ -15,8 +15,6 @@ from PyQt5.QtGui import QIcon
 
 
 # ===================== CONFIG =====================
-SERVER_URL = "ws://127.0.0.1:8000/ws"   # or wss://your-cloudflare-url/ws
-SERVER_URL = "wss://consensus-terrorists-recorded-static.trycloudflare.com/ws"
 CARD_SIZE = 24
 # =================================================
 
@@ -35,7 +33,13 @@ class BingoSignals(QObject):
 class BingoWSClient:
     def __init__(self, signals, server_url: str, room_id: str):
         self.signals = signals
-        self.server_url = f"{server_url.replace("https", "wss")}/ws"
+        self.server_url = f"{server_url.replace("https", "wss")}"
+
+        if self.server_url.endswith("/"):
+            self.server_url += "ws"
+        else:
+            self.server_url += "/ws"
+
         self.room_id = room_id
         self.ws = None
         self.loop = None
@@ -74,7 +78,7 @@ class BingoGrid(QWidget):
         super().__init__()
 
         self.server_url = self.prompt_for_url()
-        self.room_id = self.prompt_for_room()  # 👈 NEW
+        self.room_id = self.prompt_for_room()
 
         self.setWindowTitle(f"Multiplayer Bingo — Room: {self.room_id}")
         self.resize(520, 520)
@@ -98,42 +102,40 @@ class BingoGrid(QWidget):
         self.start_ws_thread()
 
     def prompt_for_url(self) -> str:
-        while True:
-            url, ok = QInputDialog.getText(
+        url, ok = QInputDialog.getText(
+            self,
+            "Provide host url",
+            "Enter host url:",
+        )
+
+        if not ok or not url.strip():
+            QMessageBox.information(
                 self,
-                "Provide host url",
-                "Enter host url:",
+                "No URL",
+                "You must enter a url to continue."
             )
+            sys.exit(0)
 
-            if not ok or not url.strip():
-                QMessageBox.information(
-                    self,
-                    "No URL",
-                    "You must enter a url to continue."
-                )
-                continue
+        return url.strip()
 
-            return url.strip()
-        sys.exit(0)
-
+    # TODO(nloewenthal): Update to show all available rooms and the count of connections to that room
+    #   - Allow for user to select from the list of rooms from dropdown
     def prompt_for_room(self) -> str:
-        while True:
-            room, ok = QInputDialog.getText(
+        room, ok = QInputDialog.getText(
+            self,
+            "Join Bingo Room",
+            "Enter room name:",
+        )
+
+        if not ok or not room.strip():
+            QMessageBox.information(
                 self,
-                "Join Bingo Room",
-                "Enter room name:",
+                "No Room",
+                "You must enter a room name to continue."
             )
+            sys.exit(0)
 
-            if not ok or not room.strip():
-                QMessageBox.information(
-                    self,
-                    "No Room",
-                    "You must enter a room name to continue."
-                )
-                continue
-
-            return room.strip()
-        sys.exit(0)
+        return room.strip()
 
     # ---------- WebSocket thread ----------
     def start_ws_thread(self):
