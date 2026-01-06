@@ -102,40 +102,48 @@ class BingoGrid(QWidget):
         self.start_ws_thread()
 
     def prompt_for_url(self) -> str:
-        url, ok = QInputDialog.getText(
-            self,
-            "Provide host url",
-            "Enter host url:",
-        )
-
-        if not ok or not url.strip():
-            QMessageBox.information(
+        while True:
+            url, ok = QInputDialog.getText(
                 self,
-                "No URL",
-                "You must enter a url to continue."
+                "Provide host url",
+                "Enter host url:",
             )
-            sys.exit(0)
 
-        return url.strip()
+            if not ok:
+                sys.exit(0)
+
+            if not url.strip():
+                QMessageBox.information(
+                    self,
+                    "No URL",
+                    "You must enter a url to continue."
+                )
+                continue
+
+            return url.strip()
 
     # TODO(nloewenthal): Update to show all available rooms and the count of connections to that room
     #   - Allow for user to select from the list of rooms from dropdown
     def prompt_for_room(self) -> str:
-        room, ok = QInputDialog.getText(
-            self,
-            "Join Bingo Room",
-            "Enter room name:",
-        )
-
-        if not ok or not room.strip():
-            QMessageBox.information(
+        while True:
+            room, ok = QInputDialog.getText(
                 self,
-                "No Room",
-                "You must enter a room name to continue."
+                "Join Bingo Room",
+                "Enter room name:",
             )
-            sys.exit(0)
 
-        return room.strip()
+            if not ok:
+                sys.exit(0)
+
+            if not room.strip():
+                QMessageBox.information(
+                    self,
+                    "No Room",
+                    "You must enter a room name to continue."
+                )
+                continue
+
+            return room.strip()
 
     # ---------- WebSocket thread ----------
     def start_ws_thread(self):
